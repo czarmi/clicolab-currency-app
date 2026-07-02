@@ -1,0 +1,32 @@
+version: "3.9"
+
+# CLICOLAB-APP-CURRENCY
+# Fully standalone application, deployed on its own host / Docker engine.
+# Exposes a public REST API (port 4100) that CLICOLAB-DEMO-BANK-APP (or any
+# other consumer) can call over the network - no shared containers, no
+# shared docker-compose with the main bank application.
+
+services:
+  currency-api:
+    build: .
+    container_name: clicolab_currency_api
+    restart: unless-stopped
+    ports:
+      - "4100:4100"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - currency_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: clicolab_currency_redis
+    restart: unless-stopped
+    networks:
+      - currency_net
+
+networks:
+  currency_net:
+    driver: bridge
